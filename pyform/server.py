@@ -5,19 +5,30 @@ from starlette_wtf import CSRFProtectMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
-#from routes import router
+from starlette.responses import JSONResponse, HTMLResponse
+
 from config import STATIC_PATH, Path, NETWORK_CONFIG, TEMPLATES
+from models import ModelForm, MyForm
 
 async def homepage(request):
     return TEMPLATES.TemplateResponse("index.html", {"request": request})
 
 
-async def form(request):
-    return TEMPLATES.TemplateResponse("daisy.html", {"request": request})
+async def getpostform(request):
+    if request.method == 'POST':
+        form = await request.json()
+        model = MyForm(**form)
+        return HTMLResponse(f"""<div>{model}</div>""")
+    else:
+        form = MyForm()
+        form_html = form.html_form(post="/form", target="#res",  insert=True)
+        return form_html
+        
+        
 
 router = [
     Route("/", homepage),
-    Route("/form", form),
+    Route("/form", getpostform, methods=["GET", "POST"]),
     Mount("/static", StaticFiles(directory=STATIC_PATH), name="static"),
     ]  # Placeholder for the router, replace with actual routes
 
