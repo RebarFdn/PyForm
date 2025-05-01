@@ -1,0 +1,41 @@
+{
+  "name": "pyform",
+  "version": "1.0.0",
+  "description": "Generate Html Forms from Pydantic Models",
+  "main": "index.js",
+  "scripts": {
+    "buildcss": "tailwindcss -i ./css/input.css -o ./css/site.css --minify",
+    "build": "npm run buildcss",
+    "watch": "tailwindcss -i ./css/input.css -o ./css/site.css --minify --watch",
+    "test": "snyk test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RebarFdn/PyForm.git"
+  },
+  "keywords": [
+    "Html",
+    "Forms",
+    "Form",
+    "form",
+    "html",
+    "pydantic",
+    "Pydantic",
+    "PyForm",
+    "pyform"
+  ],
+  "author": "Ian Moncrieffe",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/RebarFdn/PyForm/issues"
+  },
+  "homepage": "https://github.com/RebarFdn/PyForm#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.5",
+    "daisyui": "^5.0.35",
+    "tailwindcss": "^4.1.5"
+  },
+  "dependencies": {
+    "htmx.org": "^2.0.4"
+  }
+}
