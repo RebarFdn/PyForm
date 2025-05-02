@@ -4,7 +4,7 @@ from typing import Dict, Any, Optional, Sequence, Type, List
 from typing import TypeVar
 from secrets import token_urlsafe
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, ValidationError ,field_validator
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Optional, Dict, Any, List, Tuple, Sequence
 
 import pydantic
 
@@ -12,13 +12,30 @@ import pydantic
 from starlette.responses import StreamingResponse,  HTMLResponse
 from starlette.requests import Request
 
+T = TypeVar('T', bound=BaseModel)
 
 
-class Form(BaseModel):
-    csrf: str | None = None
+class FormField(BaseModel):
+    """A class to represent a form field"""
+    name: str = None
+    error: str = None
+    value: Optional[Any] = None
+    
+    class Config:
+        frozen = True
 
-form = Form(csrf = "xxe33tf-GB")
 
+class Form(BaseModel, Generic[T]):
+    """A class to represent a form"""
+    csrf: str = token_urlsafe(16)
+    fields: Dict[str, FormField]= Field(default_factory=dict)
+    model: Optional[T] = None
+    
+
+
+    
+form = Form()
+print(form)
 
 class ModelForm(BaseModel):     
     model_config = ConfigDict(json_schema_extra={'icon': 'location-arrow'})  
@@ -190,7 +207,7 @@ if __name__ == '__main__':
     mf:dict = {'name': "Apple", 'age':29} 
     try:
         model = MyForm( **mf ) #.model_validate(mf)
-        print(model.model_dump())
+       # print(model.model_dump())
     except ValidationError as e:
        # print(e.errors())
         print(e.json())
