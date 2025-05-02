@@ -33,39 +33,36 @@ class Form(BaseModel, Generic[T]):
     
 
 
-    
-form = Form()
-print(form)
 
 class ModelForm(BaseModel):     
     model_config = ConfigDict(json_schema_extra={'icon': 'location-arrow'})  
 
     
-    def form_template(self,  post:str=None, target:str=None, insert:bool=False):
+    def form_template(self,  post:str=None, target:str=None, insert:bool=False, form:Form=None):
         """Returns a Jinja templated html form of the model 
 
         Args:
             insert (bool, optional): to insert css and icons resources or use local resources.
         """
         form_html:str =""
-        for i in  self.generate_html_form(post=post, target=target, insert=insert):
+        for i in  self.generate_html_form(post=post, target=target, insert=insert, form=form):
             form_html = form_html + i
         return  form_html
     
 
-    def html_form(self,  post:str=None, target:str=None, insert:bool=False):
+    def html_form(self,  post:str=None, target:str=None, insert:bool=False, form:Form=None):
         """Returns a html form of the model 
 
         Args:
             insert (bool, optional): to insert css and icons resources or use local resources.
         """
         form_html:str =""
-        for i in  self.generate_html_form(post=post, target=target, insert=insert):
+        for i in  self.generate_html_form(post=post, target=target, insert=insert, form=form):
             form_html = form_html + i
         return  HTMLResponse(form_html)
 
     
-    def stream_html_form(self, post:str=None, target:str=None, insert:bool=False):
+    def stream_html_form(self, post:str=None, target:str=None, insert:bool=False, form:Form=None):
         """Streams the Generated html form for the model
         Args:
             request (Request): The request object
@@ -74,11 +71,15 @@ class ModelForm(BaseModel):
         """
         print("Streaming form")
 
-        return StreamingResponse( self.generate_html_form( post=post, target=target, insert=insert), media_type="text/html")
+        return StreamingResponse( self.generate_html_form( post=post, target=target, insert=insert, form=form), media_type="text/html")
 
 
-    def generate_html_form(self, post:str=None, target:str=None, insert=False, form=form):
-            """Generates a Html form of the instantiated model"""            
+    def generate_html_form(self, post:str=None, target:str=None, insert=False, form:Form=None):
+            """Generates a Html form of the instantiated model"""  
+            if form:
+                pass
+            else:
+                form = self.form()          
             if not insert:
                 yield """<!DOCTYPE html><html lang="en">
                 <head>
@@ -110,7 +111,7 @@ class ModelForm(BaseModel):
                     <label class="label" for="{key}">{value.get('title')}</label>"""
                     if value.get('type') == 'number':
                         yield f"""<div class="control has-icons-left">
-                        <input class="input is_primary" type="{value.get('type')}" step="0.001" name="{key}" id="{key}" placeholder="{value.get('title')}" value="{{form.fields[{key}].value}}" />
+                        <input class="input is_primary" type="{value.get('type')}" step="0.001" name="{key}" id="{key}" placeholder="{value.get('title')}" value="{form.fields[key].value}" />
                          <span class="icon is-small is-left">
                             <i class="fas fa-{value.get('icon')}"></i>
                         </span>                      
@@ -121,7 +122,7 @@ class ModelForm(BaseModel):
                             # yield f""" <span class="is-size-7 has-text-danger has-text-weight-bold">{value.get(errors)[0]}</span>
                     # do further checks for file upload field, radio buttons, checkboxes,select fields etc...
                     else:
-                        yield f"""<div class="control has-icons-left"> <input class="input is_primary" type="{value.get('type')}" name="{key}" id="{key}" placeholder="{value.get('title')}" value="{{form.fields[{key}].value}}" />
+                        yield f"""<div class="control has-icons-left"> <input class="input is_primary" type="{value.get('type')}" name="{key}" id="{key}" placeholder="{value.get('title')}" value="{form.fields[key].value}" />
                         <span class="icon is-small is-left">
                             <i class="fas fa-{value.get('icon')}"></i>
                         </span>                      
@@ -137,7 +138,8 @@ class ModelForm(BaseModel):
                         yield f"""<div class="field">        
                             <label class="label" for="{key3}">{value3.get('title')}</label>"""
                         if value3.get('type') == 'number':
-                            yield f"""<div class="control has-icons-left"> <input  class="input is_primary" type="{value3.get('type')}" step="0.001" name="{key3}" id="{key3}" placeholder="{value3.get('title')}" value="{{form.fields[{key3}].value}}" />
+                            yield f"""<div class="control has-icons-left"> 
+                                <input  class="input is_primary" type="{value3.get('type')}" step="0.001" name="{key3}" id="{key3}" placeholder="{value3.get('title')}" value="{form.fields[key3].value}" />
                             <span class="icon is-small is-left">
                             <i class="fas fa-{value3.get('icon')}"></i>
                             </span>                      
@@ -146,7 +148,7 @@ class ModelForm(BaseModel):
                         # do further checks for file upload field, radio buttons, checkboxes,select fields etc...
                         else:
                             yield f"""<div class="control has-icons-left"> 
-                            <input  class="input is_primary" type="{value3.get('type')}" name="{key3}" id="{key3}" placeholder="{value3.get('title')}" value="{{form.fields[{key3}].value}}"/>
+                            <input  class="input is_primary" type="{value3.get('type')}" name="{key3}" id="{key3}" placeholder="{value3.get('title')}" value="{form.fields[{key3}].value}"/>
                             <span class="icon is-small is-left">
                             <i class="fas fa-{value3.get('icon')}"></i>
                             </span>
@@ -163,12 +165,12 @@ class ModelForm(BaseModel):
                     </div>
                     <div class="control has-icons-left">
                         <button class="button is-link is-light">Cancel</button>
-                    </div></div></form></div>"""
+                    </div></div></form></div><p class="text-xs">{form}</p>"""
             if not insert: 
                 yield """</body></html>"""
     
     @property        
-    def fields_set(self)->set:
+    def fields(self)->set:        
         return self.model_fields_set
     
     @property
@@ -176,15 +178,18 @@ class ModelForm(BaseModel):
         return self.model_json_schema()
     
     
-    async def form(self, request=None):
-        pyd_form = await PydanticForm.create(request, ModelForm)
-        return pyd_form
+    def form(self, request=None):
+        pd_form = Form(model=self)
+        for field in self.fields:
+            pd_form.fields[field] = FormField(name=field, value=pd_form.model.model_dump()[field])
+
+        return pd_form
     
     async def validateForm(self, request=None):
-        form = await PydanticForm.validate_request(request, ModelForm)
+        form = Form(model=self)
         return form
         
-        
+       
 
 class MyForm(ModelForm):
         name: str = Field(default=None, min_length=2, max_length=50, title="Name", description="Your name", icon="user")
@@ -207,7 +212,7 @@ if __name__ == '__main__':
     mf:dict = {'name': "Apple", 'age':29} 
     try:
         model = MyForm( **mf ) #.model_validate(mf)
-       # print(model.model_dump())
+        print(model.form())
     except ValidationError as e:
        # print(e.errors())
         print(e.json())

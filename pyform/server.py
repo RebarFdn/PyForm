@@ -21,7 +21,8 @@ async def getpostform(request):
         return HTMLResponse(f"""<div>{model}</div>""")
     else:
         form = MyForm()
-        form_html = form.html_form(post='/form', target="form", insert=True)
+        data_form = form.form(request=request)
+        form_html = form.html_form(post='/form', target="form", insert=True, form=data_form)
         return form_html
         
         
