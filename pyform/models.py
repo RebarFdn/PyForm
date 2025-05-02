@@ -14,6 +14,12 @@ from starlette.requests import Request
 
 
 
+class Form(BaseModel):
+    csrf: str | None = None
+
+form = Form(csrf = "xxe33tf-GB")
+
+
 class ModelForm(BaseModel):     
     model_config = ConfigDict(json_schema_extra={'icon': 'location-arrow'})  
 
@@ -25,7 +31,7 @@ class ModelForm(BaseModel):
             insert (bool, optional): to insert css and icons resources or use local resources.
         """
         form_html:str =""
-        for i in  self.generate_html_form(insert=insert):
+        for i in  self.generate_html_form(post=post, target=target, insert=insert):
             form_html = form_html + i
         return  form_html
     
@@ -37,7 +43,7 @@ class ModelForm(BaseModel):
             insert (bool, optional): to insert css and icons resources or use local resources.
         """
         form_html:str =""
-        for i in  self.generate_html_form(insert=insert):
+        for i in  self.generate_html_form(post=post, target=target, insert=insert):
             form_html = form_html + i
         return  HTMLResponse(form_html)
 
@@ -51,10 +57,10 @@ class ModelForm(BaseModel):
         """
         print("Streaming form")
 
-        return StreamingResponse( self.generate_html_form(insert=insert), media_type="text/html")
+        return StreamingResponse( self.generate_html_form( post=post, target=target, insert=insert), media_type="text/html")
 
 
-    def generate_html_form(self, post:str=None, target:str=None, insert=False):
+    def generate_html_form(self, post:str=None, target:str=None, insert=False, form=form):
             """Generates a Html form of the instantiated model"""            
             if not insert:
                 yield """<!DOCTYPE html><html lang="en">
@@ -71,7 +77,11 @@ class ModelForm(BaseModel):
                      
                 </head>
                 <body>"""
-            yield """<div style="margin:50px;"><form method="POST" hx-post="{post}" hx-target="{target}">                 
+            if post and target:
+                yield f"""<div style="margin:50px;"><form method="POST" hx-post="{post}" hx-target="#{target}">"""
+            else:
+                yield """<div style="margin:50px;"><form method="POST">"""
+            yield f"""          
                 <input type="hidden" name="csrf" value="{form.csrf}" />"""
             yield f""" <h3 class="title is-4">{ self.model_json_schema().get('title')}</h3> """
             

@@ -16,12 +16,12 @@ async def homepage(request):
 
 async def getpostform(request):
     if request.method == 'POST':
-        form = await request.json()
-        model = MyForm(**form)
+        data = await request.form()
+        model = MyForm(**data)
         return HTMLResponse(f"""<div>{model}</div>""")
     else:
         form = MyForm()
-        form_html = form.html_form(post="/form", target="#res",  insert=True)
+        form_html = form.html_form(post='/form', target="form", insert=True)
         return form_html
         
         
