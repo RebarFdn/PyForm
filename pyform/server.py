@@ -5,10 +5,8 @@ from starlette_wtf import CSRFProtectMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
-from starlette.responses import JSONResponse, HTMLResponse
-
 from config import STATIC_PATH, Path, NETWORK_CONFIG, TEMPLATES
-from models import ModelForm, MyForm
+from models import MyForm
 
 async def homepage(request):
     return TEMPLATES.TemplateResponse("index.html", {"request": request})
@@ -16,14 +14,13 @@ async def homepage(request):
 
 async def getpostform(request):
     if request.method == 'POST':
-        data = await request.form()
-        model = MyForm(**data)
-        return HTMLResponse(f"""<div>{model}</div>""")
+        data = await MyForm().validateForm(request=request, schema=MyForm)
+        return data
     else:
         form = MyForm()
-        data_form = form.form(request=request)
+        data_form = form.data_form(request=request)
         form_html = form.html_form(post='/form', target="form", insert=True, form=data_form)
-        return form_html
+        return  form_html 
         
         
 

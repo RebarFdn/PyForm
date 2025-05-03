@@ -1,2 +1,2 @@
-@import "tailwindcss" source('../../templates');
+@import "tailwindcss" source('../../templates', '../../models');
 @plugin "daisyui";

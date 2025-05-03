@@ -1,7 +1,5 @@
 from pathlib import Path
 from starlette.templating import Jinja2Templates
-from starlette.config import Config
-from starlette.datastructures import Secret
 
 ## This is the configuration file for the pyform project.
 ## It sets up the base path, static files path, and templates path.
