@@ -175,3 +175,7 @@ cython_debug/
 
 # Node Modules
 node_modules/   
+
+# fontawsome
+static/jscss/
+jscss/
