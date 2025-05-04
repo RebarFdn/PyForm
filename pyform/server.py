@@ -6,7 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
 from config import STATIC_PATH, Path, NETWORK_CONFIG, TEMPLATES
-from models import MyForm
+from models.pyform_models import MyForm
 
 async def homepage(request):
     return TEMPLATES.TemplateResponse("index.html", {"request": request})

@@ -88,11 +88,10 @@ class ModelForm(BaseModel):
                     <link rel="stylesheet" href="/static/jscss/fontawesome-free-6.7.2-web/css/brands.css" />
                     <link rel="stylesheet" href="/static/jscss/fontawesome-free-6.7.2-web/css/solid.css" />
                     <link rel="stylesheet" href="/static/jscss/fontawesome-free-6.7.2-web/css/svg-with-js.css" />
-                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
                     <link rel="stylesheet" type="text/css" href="/static/site.css">
                      
                 </head>
-                <body> <p>ModelForm</p><i class="fa fa-asterisk"></i>"""
+                <body> <p class="text-xs"><i class="fa fa-asterisk"></i>ModelForm with Header</p>"""
             if post and target:
                 yield f"""<div style="margin:50px;"><form method="POST" hx-post="{post}" hx-target="#{target}">"""
             else:
@@ -172,13 +171,17 @@ class ModelForm(BaseModel):
                     yield """</div>"""
                 yield """</div>"""                 
                     
-            yield f"""<div class="field is-grouped mt-5">
-                    <div class="control has-icons-left">
-                        <input type="submit" class="btn btn-primary" value="Submit"></input>
+            yield f"""<div class="field flex flex-row is-grouped mt-5 space-x-2">
+                        <div class="control">
+                            <input type="submit" class="btn btn-primary rounded-md btn-sm" value="Submit"></input>
+                        </div>
+                        <div class="control">
+                            <button class="btn btn-warning btn-sm rounded-md">Cancel</button>
+                        </div>
                     </div>
-                    <div class="control has-icons-left">
-                        <button class="btn btn-soft btn-warning">Cancel</button>
-                    </div></div></form></div><p class="text-xs text-blue-500 font-semibold">{form}</p>"""
+                    </form>
+                    </div>
+                    <p class="text-xs text-blue-500 font-semibold">{form}</p>"""
             if not insert: 
                 yield """</body></html>"""
     
@@ -253,7 +256,7 @@ class ModelForm(BaseModel):
 
 class Contact(BaseModel):
     tel: int = Field(default=None, gt=0, le=1000, title="Tel", json_schema_extra={"icon": "phone"})
-    email: str = Field(default=None, min_length=3, max_length=36, title="Email", json_schema_extra={"icon": "envelope-o"})
+    email: str = Field(default=None, min_length=3, max_length=36, title="Email", json_schema_extra={"icon": "envelope"})
 
 
 class Address(BaseModel):
@@ -264,7 +267,7 @@ class Address(BaseModel):
 class MyForm(ModelForm):
         name: str = Field(default=None, min_length=2, max_length=50, title="Name", description="Your name", json_schema_extra={'icon': 'user'})
         age: int = Field(default=None, gt=0, le=120, title="Age", description="Your age", json_schema_extra={'icon': 'user-clock'})        
-        address:Address = Address()
+        #address:Address = Address()
         contact:Contact = Contact()
 
         @field_validator('age')
