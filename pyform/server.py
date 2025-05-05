@@ -1,3 +1,4 @@
+from typing import Any
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
@@ -6,7 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
 from config import STATIC_PATH, Path, NETWORK_CONFIG, TEMPLATES
-from models.pyform_models import MyForm
+from tests.test_models import MyForm
 
 async def homepage(request):
     return TEMPLATES.TemplateResponse("index.html", {"request": request})
@@ -14,22 +15,20 @@ async def homepage(request):
 
 async def getpostform(request):
     if request.method == 'POST':
-        data = await MyForm().validateForm(request=request, schema=MyForm)
+        data:Any = await MyForm().validateForm(request=request, schema=MyForm)
         return data
     else:
-        form = MyForm()
-        data_form = form.data_form(request=request)
-        form_html = form.html_form(post='/form', target="form", insert=True, form=data_form)
-        return  form_html 
-        
-        
+        model = MyForm()
+        form = model.data_form(request=request)
+        html = model.html_form(post='/form', target="form", insert=True, form=form)
+        return  html        
+     
 
 router = [
     Route("/", homepage),
     Route("/form", getpostform, methods=["GET", "POST"]),
     Mount("/static", StaticFiles(directory=STATIC_PATH), name="static"),
-    ]  # Placeholder for the router, replace with actual routes
-
+    ]  
 
 app = Starlette(
     debug=NETWORK_CONFIG.get('debug'),
