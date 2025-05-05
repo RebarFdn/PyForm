@@ -1,5 +1,8 @@
 from pydantic import BaseModel, Field, EmailStr, field_validator,  ValidationError 
-from pyform.models.form_models import ModelForm
+try:
+    from pyform.models.form_models import ModelForm
+except ImportError:
+    from models.form_models import ModelForm
 
 class Contact(BaseModel):
     tel: int = Field(default=None, gt=0, le=1000, title="Tel", json_schema_extra={"icon": "phone"})
