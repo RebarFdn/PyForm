@@ -96,7 +96,7 @@ class ModelForm(BaseModel):
                 else:
                     yield f""" <fieldset class="fieldset">                    
                     <label class="label" for="{key}">{value.get('title')}<span class="fa fa-{value.get('icon')}"></span>"""
-                    # Numerical Input...
+                    # Numerical Input Fields...
                     if value.get('type') == 'number':                        
                         if values:
                             yield f""" <input class="input is_primary" type="number" step="0.001" name="{key}" id="{key}" placeholder="{value.get('title')}" value="{form.get('fields', {}).get(key, {}).get('value')}" />"""
@@ -117,7 +117,7 @@ class ModelForm(BaseModel):
                         yield f""" {key}
                             </label>
                         </fieldset>"""
-                        # do further checks for file upload field, radio buttons, checkboxes,select fields etc...
+                        # do further checks for file upload field, radio buttons, fields etc...
                         # Select Fields...
                     elif value.get('options'):
                         yield f""" <select name="{key}" id="{key}" class="select">
@@ -126,6 +126,7 @@ class ModelForm(BaseModel):
                             yield f"""<option>{option}</option>"""                               
                         yield f""" </select>                           
                             </fieldset>"""
+                    # Range Fields...
                     elif value.get('range'):
                         yield f"""<output class="range-output" for="{key}"></output>
                         <input type="range" min="{value.get('min')}" max="{value.get('max')}" step="{value.get('step')}" name="{key}" id="{key}" value="{value.get('default')}"  />
@@ -140,9 +141,8 @@ class ModelForm(BaseModel):
                         </script>
                         """
 
-
                     else:
-                        # Text, Email, Password  Input...
+                        # Text, Email, Password  Input Fields...
                         if values:
                             yield f""" <input class="input is_primary" type="{value.get('type')}" name="{key}" id="{key}" placeholder="{value.get('title')}" value="{form.get('fields', {}).get(key, {}).get('value')}" />"""
                         else:
