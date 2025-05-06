@@ -96,6 +96,7 @@ class ModelForm(BaseModel):
                 else:
                     yield f""" <fieldset class="fieldset">                    
                     <label class="label" for="{key}">{value.get('title')}<span class="fa fa-{value.get('icon')}"></span>"""
+                    # Numerical Input...
                     if value.get('type') == 'number':                        
                         if values:
                             yield f""" <input class="input is_primary" type="number" step="0.001" name="{key}" id="{key}" placeholder="{value.get('title')}" value="{form.get('fields', {}).get(key, {}).get('value')}" />"""
@@ -106,11 +107,42 @@ class ModelForm(BaseModel):
                             yield f"""</label> <div class="text-xs text-red-500 font-semibold">{form.get('fields', {}).get(key, {}).get('error')}</div></fieldset>"""
                         else:
                             yield """</label></fieldset>"""
-                        ## if value.validation_error:
-                            # yield f""" <span class="is-size-7 has-text-danger has-text-weight-bold">{value.get(errors)[0]}</span>
-                    # do further checks for file upload field, radio buttons, checkboxes,select fields etc...
-                    else:
+                        # Checkbox Fields...
+                    elif value.get('type') == 'boolean':
                         
+                        if value.get('default') == False:
+                            yield f"""<input type="checkbox" name="{key}" id="{key}"  class="checkbox checkbox-primary checkbox-sm" />"""
+                        else:
+                            yield f"""<input type="checkbox" name="{key}" id="{key}"  checked="checked" class="checkbox checkbox-primary checkbox-sm" />"""
+                        yield f""" {key}
+                            </label>
+                        </fieldset>"""
+                        # do further checks for file upload field, radio buttons, checkboxes,select fields etc...
+                        # Select Fields...
+                    elif value.get('options'):
+                        yield f""" <select name="{key}" id="{key}" class="select">
+                                <option disabled selected>Pick a {value.get('title')}</option>"""
+                        for option in value.get('options'):
+                            yield f"""<option>{option}</option>"""                               
+                        yield f""" </select>                           
+                            </fieldset>"""
+                    elif value.get('range'):
+                        yield f"""<output class="range-output" for="{key}"></output>
+                        <input type="range" min="{value.get('min')}" max="{value.get('max')}" step="{value.get('step')}" name="{key}" id="{key}" value="{value.get('default')}"  />
+                        </label></fieldset>
+                        <script type="module">
+                            const range = document.querySelector("#{key}");
+                            const output = document.querySelector(".range-output");
+
+                            output.textContent = range.value;"""
+
+                        yield """ range.addEventListener("input", () => {output.textContent = range.value; });
+                        </script>
+                        """
+
+
+                    else:
+                        # Text, Email, Password  Input...
                         if values:
                             yield f""" <input class="input is_primary" type="{value.get('type')}" name="{key}" id="{key}" placeholder="{value.get('title')}" value="{form.get('fields', {}).get(key, {}).get('value')}" />"""
                         else:
@@ -127,7 +159,7 @@ class ModelForm(BaseModel):
                 for key2, value2 in self.model_json_schema().get('$defs').items():
                     yield f"""<div class="collapse collapse-arrow join-item border-base-300 border">
                         <input type="radio" name="my-accordion-0"/>                    
-                        <div class="collapse-title font-semibold"> <div class="badge badge-outline badge-info ">{key2}</div></div>
+                        <div class="collapse-title font-semibold"> <div class="badge badge-outline badge-primary ">{key2}</div></div>
                         <div class="collapse-content text-sm">""" 
                                        
                     for key3, value3 in value2.get('properties').items():
@@ -144,8 +176,28 @@ class ModelForm(BaseModel):
                                 yield f"""</label> <div class="text-xs text-red-500 font-semibold">{form.get('fields', {}).get(key3, {}).get('error')}</div></fieldset>"""
                             else:
                                 yield """</label></fieldset>"""
-                        # do further checks for file upload field, radio buttons, checkboxes,select fields etc...
-                        else:                            
+                        
+                        elif value3.get('type') == 'boolean':
+                        
+                            if value3.get('default') == False:
+                                yield f"""<input type="checkbox" name="{key3}" id="{key3}"  class="checkbox checkbox-primary checkbox-sm" />"""
+                            else:
+                                yield f"""<input type="checkbox" name="{key3}" id="{key3}"  checked="checked" class="checkbox checkbox-primary checkbox-sm" />"""
+                            yield f""" {key3}
+                                </label>
+                            </fieldset>"""
+                        elif value3.get('options'):
+                            yield f""" <select name="{key3}" id="{key3}" class="select">
+                                    <option disabled selected>Pick a {value3.get('title')}</option>"""
+                            for option in value3.get('options'):
+                                yield f"""<option>{option}</option>"""                               
+                            yield f""" </select>
+                             
+                                </fieldset>"""
+
+                        # do further checks for file upload field, radio buttons,select fields etc...
+                        else:  
+                                                      
                             if values:
                                 yield f""" <input  class="input is_primary" type="{value3.get('type')}" name="{key3}" id="{key3}" placeholder="{value3.get('title')}" value="{form.get('fields', {}).get(key3, {}).get('value')}"/>"""
                             else:
@@ -160,7 +212,7 @@ class ModelForm(BaseModel):
                     
             yield f"""<div class="field flex flex-row is-grouped mt-5">
                         <div class="control">
-                            <input type="submit" class="btn btn-info rounded-md btn-sm" value="Submit"></input>
+                            <input type="submit" class="btn btn-primary rounded-md btn-sm" value="Submit"></input>
                         </div>
                         <div class="control mx-5">
                             <button class="btn btn-outline btn-sm rounded-md">Cancel</button>
